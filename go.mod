@@ -1,4 +1,4 @@
-module github.com/xyths/hs
+module github.com/dqner/fym
 
 go 1.16
 

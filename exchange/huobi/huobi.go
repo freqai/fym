@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	DefaultHost = "api.huobi.me"
+	DefaultHost = "api.hbdm.com"
 )
 
 type Client struct {
