@@ -2,7 +2,7 @@ package gateio
 
 import (
 	"github.com/stretchr/testify/require"
-	"github.com/xyths/hs"
+	"github.com/dqner/fym"
 	"os"
 	"testing"
 	"time"

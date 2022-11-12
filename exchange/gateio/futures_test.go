@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/require"
-	"github.com/xyths/hs"
+	"github.com/dqner/fym"
 	"testing"
 	"time"
 )

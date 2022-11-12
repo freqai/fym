@@ -1,7 +1,7 @@
 package huobi
 
 import (
-	"github.com/xyths/hs/exchange"
+	"github.com/dqner/fym/exchange"
 	"log"
 	"testing"
 	"time"

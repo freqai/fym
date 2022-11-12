@@ -2,7 +2,7 @@ package hs
 
 import (
 	"encoding/json"
-	"github.com/xyths/hs/broadcast"
+	"github.com/dqner/fym/broadcast"
 	"os"
 )
 

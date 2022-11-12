@@ -6,7 +6,7 @@ package gateio
 //	"github.com/huobirdcenter/huobi_golang/logging/applogger"
 //	"github.com/huobirdcenter/huobi_golang/pkg/client/websocketclientbase"
 //	"github.com/huobirdcenter/huobi_golang/pkg/model/market"
-//	"github.com/xyths/hs/exchange/base"
+//	"github.com/dqner/fym/exchange/base"
 //	"go.uber.org/zap"
 //)
 //

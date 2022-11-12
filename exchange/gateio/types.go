@@ -2,7 +2,7 @@ package gateio
 
 import (
 	"encoding/json"
-	"github.com/xyths/hs/exchange"
+	"github.com/dqner/fym/exchange"
 )
 
 // from api result

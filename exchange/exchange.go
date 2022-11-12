@@ -3,7 +3,7 @@ package exchange
 import (
 	"context"
 	"github.com/shopspring/decimal"
-	"github.com/xyths/hs"
+	"github.com/dqner/fym"
 	"time"
 )
 

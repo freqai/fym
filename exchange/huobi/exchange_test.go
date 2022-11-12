@@ -2,7 +2,7 @@ package huobi
 
 import (
 	"github.com/stretchr/testify/require"
-	"github.com/xyths/hs/exchange"
+	"github.com/dqner/fym/exchange"
 	"testing"
 )
 

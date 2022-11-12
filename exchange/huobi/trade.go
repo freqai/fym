@@ -5,7 +5,7 @@ import (
 	"github.com/huobirdcenter/huobi_golang/pkg/client/marketwebsocketclient"
 	"github.com/huobirdcenter/huobi_golang/pkg/client/websocketclientbase"
 	"github.com/huobirdcenter/huobi_golang/pkg/model/market"
-	"github.com/xyths/hs/exchange"
+	"github.com/dqner/fym/exchange"
 )
 
 func (c *Client) SubscribeTrade(symbol, clientId string, responseHandler exchange.TradeHandler) {

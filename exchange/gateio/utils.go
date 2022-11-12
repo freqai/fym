@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"github.com/gateio/gateapi-go/v5"
 	"github.com/shopspring/decimal"
-	"github.com/xyths/hs"
-	"github.com/xyths/hs/convert"
-	"github.com/xyths/hs/exchange"
+	"github.com/dqner/fym"
+	"github.com/dqner/fym/convert"
+	"github.com/dqner/fym/exchange"
 	"strings"
 	"time"
 )
