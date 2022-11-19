@@ -38,3 +38,5 @@ type OrderBook struct {
 	Asks []Quote // sell
 	Bids []Quote // buy
 }
+
+type OrderBookHandler func(OrderBook)
