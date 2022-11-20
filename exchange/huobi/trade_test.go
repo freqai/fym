@@ -1,17 +1,18 @@
 package huobi
 
 import (
-	"github.com/dqner/fym/exchange"
 	"log"
 	"testing"
 	"time"
+
+	"github.com/dqner/fym/exchange"
 )
 
 func TestClient_SubscribeTrade(t *testing.T) {
-	handler := func(trades []exchange.TradeDetail) {
-		for i, td := range trades {
-			t.Logf("[%d] %v", i, td)
-		}
+	handler := func(trade exchange.TradeDetail) {
+
+		t.Logf("[%d] %v", 1, trade)
+
 	}
 	symbol := "btcusdt"
 	clientId := "tradetest"

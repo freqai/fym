@@ -4,6 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"sort"
+	"strconv"
+	"sync"
+	"time"
+
+	"github.com/dqner/fym"
+	"github.com/dqner/fym/convert"
+	"github.com/dqner/fym/exchange"
+	"github.com/dqner/fym/logger"
 	"github.com/huobirdcenter/huobi_golang/logging/applogger"
 	"github.com/huobirdcenter/huobi_golang/pkg/client"
 	"github.com/huobirdcenter/huobi_golang/pkg/client/accountwebsocketclient"
@@ -16,15 +26,6 @@ import (
 	"github.com/huobirdcenter/huobi_golang/pkg/model/market"
 	"github.com/huobirdcenter/huobi_golang/pkg/model/order"
 	"github.com/shopspring/decimal"
-	"github.com/dqner/fym"
-	"github.com/dqner/fym/convert"
-	"github.com/dqner/fym/exchange"
-	"github.com/dqner/fym/logger"
-	"log"
-	"sort"
-	"strconv"
-	"sync"
-	"time"
 )
 
 const (
@@ -254,7 +255,7 @@ func (c *Client) SpotAvailableBalance() (map[string]decimal.Decimal, error) {
 	return balance, nil
 }
 
-type CandleSlice []hs.Candle
+type CandleSlice []fym.Candle
 
 func (cs CandleSlice) Len() int {
 	return len(cs)
@@ -272,19 +273,19 @@ func (cs CandleSlice) Less(i, j int) bool {
 	return cs[i].Timestamp[0] < cs[j].Timestamp[0]
 }
 
-func (c *Client) CandleBySizeContext(ctx context.Context, symbol string, period time.Duration, size int) (hs.Candle, error) {
+func (c *Client) CandleBySizeContext(ctx context.Context, symbol string, period time.Duration, size int) (fym.Candle, error) {
 	return c.CandleBySize(symbol, period, size)
 }
 
-func (c *Client) CandleBySize(symbol string, period time.Duration, size int) (hs.Candle, error) {
+func (c *Client) CandleBySize(symbol string, period time.Duration, size int) (fym.Candle, error) {
 	hb := new(client.MarketClient).Init(c.Host)
 	optionalRequest := market.GetCandlestickOptionalRequest{Period: getPeriodString(period), Size: size}
 	candlesticks, err := hb.GetCandlestick(symbol, optionalRequest)
 	if err != nil {
-		return hs.Candle{}, err
+		return fym.Candle{}, err
 	}
 	l := len(candlesticks)
-	candle := hs.NewCandle(l)
+	candle := fym.NewCandle(l)
 	candle.Timestamp = make([]int64, l)
 	candle.Open = make([]float64, l)
 	candle.High = make([]float64, l)
@@ -303,14 +304,14 @@ func (c *Client) CandleBySize(symbol string, period time.Duration, size int) (hs
 	return candle, nil
 }
 
-func (c *Client) CandleFrom(symbol, clientId string, period time.Duration, from, to time.Time) (hs.Candle, error) {
+func (c *Client) CandleFrom(symbol, clientId string, period time.Duration, from, to time.Time) (fym.Candle, error) {
 	timestamps := c.splitTimestamp(period, from, to)
 	if len(timestamps) <= 1 {
-		return hs.Candle{}, errors.New("'from' need before 'to'")
+		return fym.Candle{}, errors.New("'from' need before 'to'")
 	}
 	hb := new(marketwebsocketclient.CandlestickWebSocketClient).Init(c.Host)
-	ch := make(chan hs.Candle, len(timestamps)-1)
-	candles := hs.NewCandle(CandlestickReqMaxLength * (len(timestamps) - 1))
+	ch := make(chan fym.Candle, len(timestamps)-1)
+	candles := fym.NewCandle(CandlestickReqMaxLength * (len(timestamps) - 1))
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
@@ -347,10 +348,10 @@ func (c *Client) CandleFrom(symbol, clientId string, period time.Duration, from,
 					}
 
 					if candlestickResponse.Data != nil {
-						candle := hs.NewCandle(CandlestickReqMaxLength)
+						candle := fym.NewCandle(CandlestickReqMaxLength)
 						for i := 0; i < len(candlestickResponse.Data); i++ {
 							tick := candlestickResponse.Data[i]
-							ticker := hs.Ticker{
+							ticker := fym.Ticker{
 								Timestamp: tick.Id,
 							}
 							ticker.Open, _ = tick.Open.Float64()
@@ -367,7 +368,7 @@ func (c *Client) CandleFrom(symbol, clientId string, period time.Duration, from,
 			} else {
 				logger.Sugar.Warn("Unknown response: %v", resp)
 			}
-			ch <- hs.Candle{}
+			ch <- fym.Candle{}
 			return
 		})
 

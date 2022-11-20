@@ -32,10 +32,10 @@ type Ticker struct {
 }
 
 // price, amount
-type Quote [2]string
+type Quote [2]float64
 
 type OrderBook struct {
-	Id   int64
+	Id   int
 	Asks []Quote // sell
 	Bids []Quote // buy
 }

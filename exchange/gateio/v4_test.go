@@ -1,13 +1,6 @@
 package gateio
 
-import (
-	"context"
-	"encoding/json"
-	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
-)
-
+/*
 func TestSpotV4_Currencies(t *testing.T) {
 	ctx := context.Background()
 	currencies, err := g4.Currencies(ctx)
@@ -66,3 +59,4 @@ func TestSpotV4_AllSymbols(t *testing.T) {
 		t.Logf("[%d] %s", i, string(b))
 	}
 }
+*/

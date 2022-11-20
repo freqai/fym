@@ -4,20 +4,21 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gateio/gateapi-go/v5"
-	"github.com/shopspring/decimal"
+	"strings"
+	"time"
+
 	"github.com/dqner/fym"
 	"github.com/dqner/fym/convert"
 	"github.com/dqner/fym/exchange"
-	"strings"
-	"time"
+	"github.com/gateio/gateapi-go/v5"
+	"github.com/shopspring/decimal"
 )
 
 func (g GateIO) FormatSymbol(base, quote string) string {
 	return fmt.Sprintf("%s_%s", strings.ToLower(base), strings.ToLower(quote))
 }
 
-func parseTicker(data ResponseWsTicker) (ticker hs.Ticker, err error) {
+func parseTicker(data ResponseWsTicker) (ticker fym.Ticker, err error) {
 	// no ticker.Timestamp
 	ticker.Open = convert.StrToFloat64(data.Open)
 	ticker.High = convert.StrToFloat64(data.High)
@@ -27,8 +28,8 @@ func parseTicker(data ResponseWsTicker) (ticker hs.Ticker, err error) {
 	return
 }
 
-func parseCandle(data []interface{}) (hs.Candle, error) {
-	c := hs.NewCandle(len(data))
+func parseCandle(data []interface{}) (fym.Candle, error) {
+	c := fym.NewCandle(len(data))
 	var err error
 
 	for _, d := range data {
@@ -41,7 +42,7 @@ func parseCandle(data []interface{}) (hs.Candle, error) {
 			err = errors.New("ticker not 8 item")
 			break
 		}
-		t := hs.Ticker{}
+		t := fym.Ticker{}
 		timestamp, ok := raw[0].(float64)
 		if !ok {
 			err = errors.New("timestamp format error")
@@ -62,8 +63,8 @@ func parseCandle(data []interface{}) (hs.Candle, error) {
 	return c, err
 }
 
-func parseTickers(data []interface{}) ([]hs.Ticker, error) {
-	var tickers []hs.Ticker
+func parseTickers(data []interface{}) ([]fym.Ticker, error) {
+	var tickers []fym.Ticker
 	var err error
 
 	for _, d := range data {
@@ -76,7 +77,7 @@ func parseTickers(data []interface{}) ([]hs.Ticker, error) {
 			err = errors.New("ticker not 8 item")
 			break
 		}
-		t := hs.Ticker{}
+		t := fym.Ticker{}
 		timestamp, ok := raw[0].(float64)
 		if !ok {
 			err = errors.New("timestamp format error")

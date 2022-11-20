@@ -3,14 +3,15 @@ package gateio
 import (
 	"context"
 	"encoding/json"
-	"github.com/shopspring/decimal"
-	"github.com/stretchr/testify/require"
-	"github.com/dqner/fym"
-	"github.com/dqner/fym/exchange"
 	"os"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/dqner/fym"
+	"github.com/dqner/fym/exchange"
+	"github.com/shopspring/decimal"
+	"github.com/stretchr/testify/require"
 )
 
 var g *GateIO
@@ -18,7 +19,7 @@ var g4 *SpotV4
 var futures *Futures
 
 func TestMain(m *testing.M) {
-	l, err := hs.NewZapLogger(hs.LogConf{
+	l, err := fym.NewZapLogger(fym.LogConf{
 		Level:   "debug",
 		Outputs: []string{"stdout"},
 		Errors:  []string{"stderr"},
@@ -221,7 +222,7 @@ func TestGateIO_SubCandlestick(t *testing.T) {
 	symbol := "BTC_USDT"
 	g.SubCandlestick(symbol, "id", time.Minute,
 		func(response interface{}) {
-			ticker, ok := response.(hs.Ticker)
+			ticker, ok := response.(fym.Ticker)
 			if !ok {
 				t.Error("bad response format")
 				return

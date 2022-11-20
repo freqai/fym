@@ -33,19 +33,16 @@ func tradeHandler(responseHandler exchange.TradeHandler) websocketclientbase.Res
 			if &depthResponse != nil {
 				if depthResponse.Tick != nil && depthResponse.Tick.Data != nil {
 					applogger.Info("WebSocket received trade update: count=%d", len(depthResponse.Tick.Data))
-					var details []exchange.TradeDetail
-					l := len(depthResponse.Tick.Data)
-					for i := l - 1; i >= 0; i-- { // 火币的交易明细是时间倒序的，新数据在前
-						t := depthResponse.Tick.Data[i]
-						details = append(details, exchange.TradeDetail{
-							Id:        t.TradeId,
-							Price:     t.Price,
-							Amount:    t.Amount,
-							Timestamp: t.Timestamp,
-							Direction: t.Direction,
-						})
-					}
-					responseHandler(details)
+
+					t := depthResponse.Tick.Data[0]
+
+					responseHandler(exchange.TradeDetail{
+						Id:        t.TradeId,
+						Price:     t.Price,
+						Amount:    t.Amount,
+						Timestamp: t.Timestamp,
+						Direction: t.Direction,
+					})
 				}
 
 				if depthResponse.Data != nil {

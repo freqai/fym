@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/require"
-	"github.com/dqner/fym"
 	"testing"
 	"time"
+
+	"github.com/dqner/fym"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFutures_ListContracts(t *testing.T) {
@@ -71,7 +72,7 @@ func TestFutures_ListTrades(t *testing.T) {
 
 func TestFutures_Candle(t *testing.T) {
 	ctx := context.TODO()
-	print := func(t *testing.T, candle hs.Candle) {
+	print := func(t *testing.T, candle fym.Candle) {
 		for i := 0; i < candle.Length(); i++ {
 			t.Logf("[%d] %s %f %f %f %f %f", i,
 				time.Unix(candle.Timestamp[i], 0),

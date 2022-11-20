@@ -6,17 +6,18 @@ import (
 	"crypto/sha512"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/shopspring/decimal"
-	"github.com/dqner/fym"
-	"github.com/dqner/fym/convert"
-	"github.com/dqner/fym/exchange"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/dqner/fym"
+	"github.com/dqner/fym/convert"
+	"github.com/dqner/fym/exchange"
+	"github.com/pkg/errors"
+	"github.com/shopspring/decimal"
+	"go.uber.org/zap"
 )
 
 const (
@@ -235,20 +236,20 @@ func (g *GateIO) OrderBook(symbol string) (ResponseOrderBook, error) {
 }
 
 // 获取Candle
-func (g *GateIO) CandleBySize(symbol string, period time.Duration, size int) (candle hs.Candle, err error) {
+func (g *GateIO) CandleBySize(symbol string, period time.Duration, size int) (candle fym.Candle, err error) {
 	groupSec := int(period.Seconds())
 	rangeHour := int(int64(size) * int64(period) / int64(time.Hour))
 	return g.GetCandle(symbol, groupSec, rangeHour)
 }
 
-func (g *GateIO) CandleFrom(symbol, clientId string, period time.Duration, from, to time.Time) (hs.Candle, error) {
+func (g *GateIO) CandleFrom(symbol, clientId string, period time.Duration, from, to time.Time) (fym.Candle, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Minute)
 	defer cancel()
 	return g.ReqCandlestick(ctx, symbol, clientId, period, from, to)
 }
 
 // 获取Candle
-func (g *GateIO) GetCandle(symbol string, groupSec, rangeHour int) (candles hs.Candle, err error) {
+func (g *GateIO) GetCandle(symbol string, groupSec, rangeHour int) (candles fym.Candle, err error) {
 	url := fmt.Sprintf("/candlestick2/%s?group_sec=%d&range_hour=%d", symbol, groupSec, rangeHour)
 	param := ""
 
@@ -257,10 +258,10 @@ func (g *GateIO) GetCandle(symbol string, groupSec, rangeHour int) (candles hs.C
 	if err != nil {
 		return candles, err
 	}
-	candles = hs.NewCandle(len(result.Data))
+	candles = fym.NewCandle(len(result.Data))
 	for i := 0; i < len(result.Data); i++ {
 		c := result.Data[i]
-		candles.Append(hs.Ticker{
+		candles.Append(fym.Ticker{
 			Timestamp: int64(c[0] / 1000), // covert ms to s
 			Volume:    c[1],
 			Close:     c[2],
@@ -728,9 +729,9 @@ func (g *GateIO) ReqTime(ctx context.Context, id int64) (int64, error) {
 	}
 }
 
-func (g *GateIO) ReqTicker(ctx context.Context, id int64, symbol string, period time.Duration) (hs.Ticker, error) {
+func (g *GateIO) ReqTicker(ctx context.Context, id int64, symbol string, period time.Duration) (fym.Ticker, error) {
 	client := new(WebsocketClient).Init(g.host, g.wsPath, g.Logger)
-	ch := make(chan hs.Ticker, 1)
+	ch := make(chan fym.Ticker, 1)
 	client.SetHandler(
 		func() {
 			g.Logger.Debug("successfully connected")
@@ -756,7 +757,7 @@ func (g *GateIO) ReqTicker(ctx context.Context, id int64, symbol string, period 
 			g.Logger.Debugf("response timestamp: %d", t)
 			return t, nil
 		case <-ctx.Done():
-			return hs.Ticker{}, ctx.Err()
+			return fym.Ticker{}, ctx.Err()
 		}
 	}
 }
@@ -777,16 +778,16 @@ func (g *GateIO) UnsubTicker(id int64, symbol string) {
 	client.UnsubTicker(id)
 }
 
-func (g *GateIO) ReqCandlestick(ctx context.Context, symbol, clientId string, period time.Duration, from, to time.Time) (hs.Candle, error) {
+func (g *GateIO) ReqCandlestick(ctx context.Context, symbol, clientId string, period time.Duration, from, to time.Time) (fym.Candle, error) {
 	client := new(WebsocketClient).Init(g.host, g.wsPath, g.Logger)
-	ch := make(chan hs.Candle, 1)
+	ch := make(chan fym.Candle, 1)
 	id := time.Now().Unix()
 	client.SetHandler(
 		func() {
 			client.ReqCandle(id, symbol, from.Unix(), to.Unix(), int64(period.Seconds()))
 		},
 		client.ReqCandleHandler(func(resp interface{}) {
-			r, ok := resp.(hs.Candle)
+			r, ok := resp.(fym.Candle)
 			if !ok {
 				return
 			}
@@ -801,7 +802,7 @@ func (g *GateIO) ReqCandlestick(ctx context.Context, symbol, clientId string, pe
 		case c := <-ch:
 			return c, nil
 		case <-ctx.Done():
-			return hs.Candle{}, ctx.Err()
+			return fym.Candle{}, ctx.Err()
 		}
 	}
 }

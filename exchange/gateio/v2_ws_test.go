@@ -1,15 +1,16 @@
 package gateio
 
 import (
-	"github.com/stretchr/testify/require"
-	"github.com/dqner/fym"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/dqner/fym"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWebsocketClient_Ping(t *testing.T) {
-	l, err := hs.NewZapLogger(hs.LogConf{
+	l, err := fym.NewZapLogger(fym.LogConf{
 		Level:   "debug",
 		Outputs: []string{"stdout"},
 		Errors:  []string{"stderr"},
@@ -42,7 +43,7 @@ func TestWebsocketClient_Ping(t *testing.T) {
 // go test -c ./exchange/gateio
 // host=ws.gateio.ws apiKey=xxx secretKey=yyy ./gateio.test -test.run=TestWebsocketClient_Auth
 func TestWebsocketClient_Auth(t *testing.T) {
-	l, err := hs.NewZapLogger(hs.LogConf{
+	l, err := fym.NewZapLogger(fym.LogConf{
 		Level:   "debug",
 		Outputs: []string{"stdout"},
 		Errors:  []string{"stderr"},

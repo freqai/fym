@@ -5,15 +5,16 @@ package gateio
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/antihax/optional"
-	"github.com/gateio/gateapi-go/v5"
-	"github.com/shopspring/decimal"
 	"github.com/dqner/fym"
 	"github.com/dqner/fym/convert"
 	"github.com/dqner/fym/exchange"
+	"github.com/gateio/gateapi-go/v5"
+	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
-	"strconv"
-	"time"
 )
 
 type Futures struct {
@@ -104,7 +105,7 @@ func (f *Futures) ListTrades(ctx context.Context, settle string, contract string
 }
 
 // from, to is unix timestamp in seconds
-func (f *Futures) Candle(ctx context.Context, settle string, contract string, from, to int64, limit int, interval time.Duration) (hs.Candle, error) {
+func (f *Futures) Candle(ctx context.Context, settle string, contract string, from, to int64, limit int, interval time.Duration) (fym.Candle, error) {
 	opts := gateapi.ListFuturesCandlesticksOpts{Interval: optional.NewString(getInterval(interval))}
 	if from > 0 {
 		opts.From = optional.NewInt64(from)
@@ -117,11 +118,11 @@ func (f *Futures) Candle(ctx context.Context, settle string, contract string, fr
 	}
 	rawCandle, _, err := f.client.FuturesApi.ListFuturesCandlesticks(ctx, settle, contract, &opts)
 	if err != nil {
-		return hs.Candle{}, err
+		return fym.Candle{}, err
 	}
-	candle := hs.NewCandle(len(rawCandle))
+	candle := fym.NewCandle(len(rawCandle))
 	for _, c := range rawCandle {
-		candle.Append(hs.Ticker{
+		candle.Append(fym.Ticker{
 			Timestamp: int64(c.T), // unix timestamp in seconds
 			Open:      convert.StrToFloat64(c.O),
 			High:      convert.StrToFloat64(c.H),

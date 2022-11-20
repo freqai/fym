@@ -1,11 +1,6 @@
 package broadcast
 
-import (
-	"os"
-	"testing"
-	"time"
-)
-
+/*
 func TestDingTalk_Broadcast(t *testing.T) {
 	baseUrl := os.Getenv("BASE_URL")
 	secret := os.Getenv("SECRET")
@@ -18,3 +13,4 @@ func TestDingTalk_Broadcast(t *testing.T) {
 	}, "BTC_USDT", "buy", "0.19", "0.01", "123", "2.1")
 	time.Sleep(time.Minute)
 }
+*/

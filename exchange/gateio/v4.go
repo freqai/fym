@@ -3,14 +3,15 @@ package gateio
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/antihax/optional"
-	"github.com/gateio/gateapi-go/v5"
-	"github.com/shopspring/decimal"
 	"github.com/dqner/fym"
 	"github.com/dqner/fym/convert"
 	"github.com/dqner/fym/exchange"
+	"github.com/gateio/gateapi-go/v5"
+	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
-	"time"
 )
 
 // SpotV4 is gate.io API v4 wrapper
@@ -60,10 +61,10 @@ func (g *SpotV4) Currencies(ctx context.Context) ([]gateapi.Currency, error) {
 
 // 获取一定数量的k线
 // 可以用于策略启动时的查询
-func (g *SpotV4) CandleBySize(symbol string, period time.Duration, size int) (hs.Candle, error) {
+func (g *SpotV4) CandleBySize(symbol string, period time.Duration, size int) (fym.Candle, error) {
 	return g.CandleBySizeContext(context.Background(), symbol, period, size)
 }
-func (g *SpotV4) CandleBySizeContext(ctx context.Context, symbol string, period time.Duration, size int) (hs.Candle, error) {
+func (g *SpotV4) CandleBySizeContext(ctx context.Context, symbol string, period time.Duration, size int) (fym.Candle, error) {
 	interval := optional.NewString(getInterval(period))
 	left := size
 	to := time.Now()
@@ -81,7 +82,7 @@ func (g *SpotV4) CandleBySizeContext(ctx context.Context, symbol string, period 
 		left -= limit
 		to = to.Add(period * time.Duration(-limit))
 	}
-	candle := hs.NewCandle(size)
+	candle := fym.NewCandle(size)
 	for i := len(params) - 1; i >= 0; i-- {
 		options := &gateapi.ListCandlesticksOpts{
 			Limit:    optional.NewInt32(int32(params[i].Limit)),
@@ -389,15 +390,15 @@ func (g *SpotV4) Last24hVolume(ctx context.Context, symbol string) (decimal.Deci
 // API限制最大数目是1000根
 const maxCandleLength = 1000
 
-func (g *SpotV4) listCandlesticks(ctx context.Context, symbol string, options *gateapi.ListCandlesticksOpts) (hs.Candle, error) {
+func (g *SpotV4) listCandlesticks(ctx context.Context, symbol string, options *gateapi.ListCandlesticksOpts) (fym.Candle, error) {
 	result, _, err := g.client.SpotApi.ListCandlesticks(ctx, symbol, options)
 	if err != nil {
-		return hs.Candle{}, err
+		return fym.Candle{}, err
 	}
-	candles := hs.NewCandle(len(result))
+	candles := fym.NewCandle(len(result))
 	for i := 0; i < len(result); i++ {
 		c := result[i]
-		candles.Append(hs.Ticker{
+		candles.Append(fym.Ticker{
 			Timestamp: convert.StrToInt64(c[0]),
 			// volume count by quote currency, eg. BTC_USDT is xxx USDT
 			Volume: convert.StrToFloat64(c[1]),
@@ -660,9 +661,9 @@ func (g *SpotV4) ReqTime(ctx context.Context, id int64) (int64, error) {
 	}
 }
 
-func (g *SpotV4) ReqTicker(ctx context.Context, id int64, symbol string, period time.Duration) (hs.Ticker, error) {
+func (g *SpotV4) ReqTicker(ctx context.Context, id int64, symbol string, period time.Duration) (fym.Ticker, error) {
 	client := new(WebsocketClient).Init(g.wsHost, g.wsPath, g.Logger)
-	ch := make(chan hs.Ticker, 1)
+	ch := make(chan fym.Ticker, 1)
 	client.SetHandler(
 		func() {
 			g.Logger.Debug("successfully connected")
@@ -688,7 +689,7 @@ func (g *SpotV4) ReqTicker(ctx context.Context, id int64, symbol string, period 
 			g.Logger.Debugf("response timestamp: %d", t)
 			return t, nil
 		case <-ctx.Done():
-			return hs.Ticker{}, ctx.Err()
+			return fym.Ticker{}, ctx.Err()
 		}
 	}
 }
@@ -709,16 +710,16 @@ func (g *SpotV4) UnsubTicker(id int64, symbol string) {
 	client.UnsubTicker(id)
 }
 
-func (g *SpotV4) ReqCandlestick(ctx context.Context, symbol, clientId string, period time.Duration, from, to time.Time) (hs.Candle, error) {
+func (g *SpotV4) ReqCandlestick(ctx context.Context, symbol, clientId string, period time.Duration, from, to time.Time) (fym.Candle, error) {
 	client := new(WebsocketClient).Init(g.wsHost, g.wsPath, g.Logger)
-	ch := make(chan hs.Candle, 1)
+	ch := make(chan fym.Candle, 1)
 	id := time.Now().Unix()
 	client.SetHandler(
 		func() {
 			client.ReqCandle(id, symbol, from.Unix(), to.Unix(), int64(period.Seconds()))
 		},
 		client.ReqCandleHandler(func(resp interface{}) {
-			r, ok := resp.(hs.Candle)
+			r, ok := resp.(fym.Candle)
 			if !ok {
 				return
 			}
@@ -733,7 +734,7 @@ func (g *SpotV4) ReqCandlestick(ctx context.Context, symbol, clientId string, pe
 		case c := <-ch:
 			return c, nil
 		case <-ctx.Done():
-			return hs.Candle{}, ctx.Err()
+			return fym.Candle{}, ctx.Err()
 		}
 	}
 }

@@ -76,15 +76,18 @@ func depthHandler(orderBookHandler exchange.OrderBookHandler) binance.WsDepthHan
 			var OrderBook exchange.OrderBook
 
 			for i := 0; i < len(event.Asks); i++ {
-				asks = append(asks, exchange.Quote{event.Asks[i].Price, event.Asks[i].Quantity})
+				price, quantity, _ := event.Asks[i].Parse()
+				asks = append(asks, exchange.Quote{price, quantity})
 			}
 
 			for i := 0; i < len(event.Bids); i++ {
-				bids = append(bids, exchange.Quote{event.Bids[i].Price, event.Bids[i].Quantity})
+				price, quantity, _ := event.Bids[i].Parse()
+
+				bids = append(bids, exchange.Quote{price, quantity})
 			}
 
 			OrderBook = exchange.OrderBook{
-				Id:   event.LastUpdateID,
+				Id:   0, //event.LastUpdateID,
 				Asks: asks,
 				Bids: bids,
 			}
@@ -117,15 +120,18 @@ func futureDepthHandler(orderBookHandler exchange.OrderBookHandler) futures.WsDe
 			var OrderBook exchange.OrderBook
 
 			for i := 0; i < len(event.Asks); i++ {
-				asks = append(asks, exchange.Quote{event.Asks[i].Price, event.Asks[i].Quantity})
+				price, quantity, _ := event.Asks[i].Parse()
+				asks = append(asks, exchange.Quote{price, quantity})
 			}
 
 			for i := 0; i < len(event.Bids); i++ {
-				bids = append(bids, exchange.Quote{event.Bids[i].Price, event.Bids[i].Quantity})
+				price, quantity, _ := event.Bids[i].Parse()
+
+				bids = append(bids, exchange.Quote{price, quantity})
 			}
 
 			OrderBook = exchange.OrderBook{
-				Id:   event.LastUpdateID,
+				Id:   1, //event.LastUpdateID,
 				Asks: asks,
 				Bids: bids,
 			}
