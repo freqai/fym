@@ -1,8 +1,9 @@
 package exchange
 
 import (
-	"github.com/shopspring/decimal"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 const (
@@ -31,10 +32,10 @@ type Ticker struct {
 }
 
 // price, amount
-type Quote [2]float64
+type Quote [2]string
 
 type OrderBook struct {
-	Id   int
+	Id   int64
 	Asks []Quote // sell
 	Bids []Quote // buy
 }

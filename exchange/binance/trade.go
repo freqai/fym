@@ -1,86 +1,124 @@
 package binance
 
 import (
+	"fmt"
+
 	binance "github.com/adshao/go-binance/v2"
 	"github.com/adshao/go-binance/v2/futures"
 	"github.com/dqner/fym/exchange"
-	jsonparser "github.com/buger/jsonparser"
+	"github.com/shopspring/decimal"
 )
 
 func (c *Client) SubscribeTrade(symbol, clientId string, responseHandler exchange.TradeHandler) {
-	endpoint := fmt.Sprintf("%s/%s@aggTrade", "wss://stream.binance.com:9443/ws", strings.ToLower(symbol))
-	cfg := binance.NewWsConfig(endpoint, []string{})
-	return binance.WsServe(cfg, TradeHandler(responseHandler), errHandler)
+
+	errHandler := func(err error) {
+		fmt.Println(err)
+	}
+	doneC, _, err := binance.WsAggTradeServe(symbol, tradeHandler(responseHandler), errHandler)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	<-doneC
 }
 
 func (c *Client) SubscribeFutureTrade(symbol, clientId string, responseHandler exchange.TradeHandler) {
-	endpoint := fmt.Sprintf("%s/%s@aggTrade", "wss://fstream.binance.com/ws", strings.ToLower(symbol))
-	cfg := futures.NewWsConfig(endpoint, []string{})
-	 
-	return futures.WsServe(cfg, futureTradeHandler(responseHandler), errHandler)
+	errHandler := func(err error) {
+		fmt.Println(err)
+	}
+	doneC, _, err := futures.WsAggTradeServe(symbol, futureTradeHandler(responseHandler), errHandler)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	<-doneC
 }
 
 func (c *Client) UnsubscribeTrade(symbol, clientId string) {
-	hb := new(marketwebsocketclient.TradeWebSocketClient).Init(c.Host)
-	hb.UnSubscribe(symbol, clientId)
-}
 
+}
 
 func (c *Client) UnsubscribeFutureTrade(symbol, clientId string) {
-	hb := new(marketwebsocketclient.TradeWebSocketClient).Init(c.Host)
-	hb.UnSubscribe(symbol, clientId)
+
 }
 
-func tradeHandler(responseHandler exchange.TradeHandler) binance.WsHandler {
-	return func(message []byte) {
- 		
-		if &message != nil {
-			tradeId, err :=  jsonparser.GetInt(message, "a")
-			price, err :=  jsonparser.GetFloat(message, "p")
-			amount, err :=  jsonparser.GetFloat(message, "q")
-			tradeTimestamp, err :=  jsonparser.GetInt(message, "T")
-			direction, err :=  jsonparser.GetBoolean(message, "m")
-			
+func tradeHandler(responseHandler exchange.TradeHandler) binance.WsAggTradeHandler {
+	return func(event *binance.WsAggTradeEvent) {
+		/*
+			type WsAggTradeEvent struct {
+				Event                 string `json:"e"`
+				Time                  int64  `json:"E"`
+				Symbol                string `json:"s"`
+				AggTradeID            int64  `json:"a"`
+				Price                 string `json:"p"`
+				Quantity              string `json:"q"`
+				FirstBreakdownTradeID int64  `json:"f"`
+				LastBreakdownTradeID  int64  `json:"l"`
+				TradeTime             int64  `json:"T"`
+				IsBuyerMaker          bool   `json:"m"`
+				Placeholder           bool   `json:"M"` // add this field to avoid case insensitive unmarshaling
+			}
+		*/
+
+		if &event.Event != nil {
+			tradeId := event.AggTradeID
+			price, _ := decimal.NewFromString(event.Price)
+			amount, _ := decimal.NewFromString(event.Quantity)
+			tradeTimestamp := event.TradeTime
+			direction := "sell"
+			if event.IsBuyerMaker {
+				direction = "buy"
+			}
+
 			responseHandler(exchange.TradeDetail{
 				Id:        tradeId,
 				Price:     price,
 				Amount:    amount,
 				Timestamp: tradeTimestamp,
-				Direction: direction ? "buy" : "sell"
+				Direction: direction,
 			})
-			 
+
 		}
-		 
+
 	}
 }
 
+func futureTradeHandler(responseHandler exchange.TradeHandler) futures.WsAggTradeHandler {
+	return func(event *futures.WsAggTradeEvent) {
+		/*
+			type WsAggTradeEvent struct {
+				Event            string `json:"e"`
+				Time             int64  `json:"E"`
+				Symbol           string `json:"s"`
+				AggregateTradeID int64  `json:"a"`
+				Price            string `json:"p"`
+				Quantity         string `json:"q"`
+				FirstTradeID     int64  `json:"f"`
+				LastTradeID      int64  `json:"l"`
+				TradeTime        int64  `json:"T"`
+				Maker            bool   `json:"m"`
+			}
+		*/
 
-func futureTradeHandler(responseHandler exchange.TradeHandler) futures.WsHandler {
-	return func(message []byte) {
-		
-		if &message != nil {
-			tradeId, err :=  jsonparser.GetInt(message, "a")
-			price, err :=  jsonparser.GetFloat(message, "p")
-			amount, err :=  jsonparser.GetFloat(message, "q")
-			tradeTimestamp, err :=  jsonparser.GetInt(message, "T")
-			direction, err :=  jsonparser.GetBoolean(message, "m")
-			
+		if &event.Event != nil {
+			tradeId := event.AggregateTradeID
+			price, _ := decimal.NewFromString(event.Price)
+			amount, _ := decimal.NewFromString(event.Quantity)
+			tradeTimestamp := event.TradeTime
+			direction := "sell"
+			if event.Maker {
+				direction = "buy"
+			}
+
 			responseHandler(exchange.TradeDetail{
 				Id:        tradeId,
 				Price:     price,
 				Amount:    amount,
 				Timestamp: tradeTimestamp,
-				Direction: direction ? "buy" : "sell"
+				Direction: direction,
 			})
-			 
+
 		}
-		 
-		 
+
 	}
 }
-errHandler := func(err error) {
-
-	fmt.Println(err)
-
-}
- 

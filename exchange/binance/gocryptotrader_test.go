@@ -1,16 +1,18 @@
 package binance
 
 import (
+	"testing"
+	"time"
+
 	"github.com/stretchr/testify/require"
 	"github.com/thrasher-corp/gocryptotrader/currency"
 	"github.com/thrasher-corp/gocryptotrader/exchanges/asset"
 	"github.com/thrasher-corp/gocryptotrader/exchanges/binance"
 	"github.com/thrasher-corp/gocryptotrader/exchanges/kline"
-	"testing"
-	"time"
 )
 
 func TestBinanceExchange(t *testing.T) {
+	return
 	var b binance.Binance
 	b.SetDefaults()
 	t.Run("get kline", func(t *testing.T) {

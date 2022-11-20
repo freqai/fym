@@ -2,9 +2,10 @@ package exchange
 
 import (
 	"context"
-	"github.com/shopspring/decimal"
-	"github.com/dqner/fym"
 	"time"
+
+	"github.com/dqner/fym"
+	"github.com/shopspring/decimal"
 )
 
 // common exchange interface for all symbols
@@ -17,8 +18,8 @@ type RestAPIExchange interface {
 	SpotAvailableBalance() (map[string]decimal.Decimal, error)
 	LastPrice(symbol string) (decimal.Decimal, error)
 	Last24hVolume(symbol string) (decimal.Decimal, error)
-	CandleBySize(symbol string, period time.Duration, size int) (hs.Candle, error)
-	CandleFrom(symbol, clientId string, period time.Duration, from, to time.Time) (hs.Candle, error)
+	CandleBySize(symbol string, period time.Duration, size int) (fym.Candle, error)
+	CandleFrom(symbol, clientId string, period time.Duration, from, to time.Time) (fym.Candle, error)
 
 	//PlaceOrder(orderType, symbol, clientOrderId string, price, amount decimal.Decimal) (uint64, error)
 	BuyLimit(symbol, clientOrderId string, price, amount decimal.Decimal) (orderId uint64, err error)
