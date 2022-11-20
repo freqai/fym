@@ -1,9 +1,10 @@
-package hs
+package fym
 
 import (
 	"encoding/json"
-	"github.com/dqner/fym/broadcast"
 	"os"
+
+	"github.com/dqner/fym/broadcast"
 )
 
 type MongoConf struct {
@@ -35,10 +36,10 @@ type ExchangeConf struct {
 type BroadcastConf = broadcast.Config
 
 const (
-	GateIO = "gate"
-	MXC    = "mxc"
-	OKEx   = "okex"
-	Huobi  = "huobi"
+	GateIO  = "gate"
+	MXC     = "mxc"
+	OKEx    = "okex"
+	Huobi   = "huobi"
 	Binance = "binance"
 )
 

@@ -1,4 +1,4 @@
-package hs
+package fym
 
 type FloatTuple struct {
 	Key   interface{}

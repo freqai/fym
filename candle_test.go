@@ -1,4 +1,4 @@
-package hs
+package fym
 
 import "testing"
 
@@ -10,8 +10,8 @@ func TestCandle_Append(t *testing.T) {
 		NewCandle(3),
 	}
 	tickers := []Ticker{
-		{1, 1, 1, 1, 1, 1,},
-		{2, 2, 2, 2, 2, 2,},
+		{1, 1, 1, 1, 1, 1},
+		{2, 2, 2, 2, 2, 2},
 	}
 	for j, c := range candles {
 		for i, ticker := range tickers {
@@ -30,11 +30,11 @@ func TestCandle_Append(t *testing.T) {
 
 func TestCandle_Add(t *testing.T) {
 	tickers := []Ticker{
-		{0, 0, 0, 0, 0, 0,},
-		{1, 1, 1, 1, 1, 1,},
-		{2, 2, 2, 2, 2, 2,},
-		{3, 3, 3, 3, 3, 3,},
-		{2, 4, 4, 4, 4, 4,},
+		{0, 0, 0, 0, 0, 0},
+		{1, 1, 1, 1, 1, 1},
+		{2, 2, 2, 2, 2, 2},
+		{3, 3, 3, 3, 3, 3},
+		{2, 4, 4, 4, 4, 4},
 	}
 	c1 := NewCandle(0)
 	c2 := NewCandle(0)

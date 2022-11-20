@@ -1,4 +1,4 @@
-package hs
+package fym
 
 import "github.com/shopspring/decimal"
 
