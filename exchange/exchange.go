@@ -60,4 +60,14 @@ type Balance struct {
 type AccountBalance struct {
 	Type       string // spot, margin, future
 	Currencies []Balance
+	Orders     []Order
 }
+
+type AccountInfo struct {
+	Type   string // spot, margin, future
+	Usdt   string
+	Busd   string
+	Orders []Order
+}
+
+type FutureAccountHandler func(AccountBalance)

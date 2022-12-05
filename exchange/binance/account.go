@@ -1,29 +1,17 @@
 package binance
 
 /*
-import (
-	"fmt"
-	"strconv"
-	"strings"
+func (c *Client) SubscribeFutureAccount(symbol, clientId string, responseHandler exchange.FutureAccountHandler) {
 
-	binance "github.com/adshao/go-binance/v2"
-	"github.com/adshao/go-binance/v2/futures"
-	"github.com/dqner/fym/exchange"
-	"github.com/huobirdcenter/huobi_golang/logging/applogger"
-	"github.com/huobirdcenter/huobi_golang/pkg/client/marketwebsocketclient"
-)
-
-func (c *Client) SubscribeAccount(symbol, clientId string, responseHandler exchange.TradeHandler) {
-	endpoint := fmt.Sprintf("%s/%s@aggTrade", "wss://stream.binance.com:9443/ws", strings.ToLower(symbol))
-	cfg := binance.NewWsConfig(endpoint, []string{})
-	return binance.WsServe(cfg, TradeHandler(responseHandler), errHandler)
-}
-
-func (c *Client) SubscribeFutureAccount(symbol, clientId string, responseHandler exchange.TradeHandler) {
-	endpoint := fmt.Sprintf("%s/%s@aggTrade", "wss://fstream.binance.com/ws", strings.ToLower(symbol))
-	cfg := futures.NewWsConfig(endpoint, []string{})
-
-	return futures.WsServe(cfg, futureTradeHandler(responseHandler), errHandler)
+	errHandler := func(err error) {
+		fmt.Println(err)
+	}
+	doneC, _, err := futures.WsUserDataServe(symbol, futureAccountHandler(responseHandler), errHandler)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	<-doneC
 }
 
 func (c *Client) UnsubscribeAccount(symbol, clientId string) {
@@ -31,81 +19,30 @@ func (c *Client) UnsubscribeAccount(symbol, clientId string) {
 	hb.UnSubscribe(symbol, clientId)
 }
 
-func (c *Client) UnsubscribeFutureAccount(symbol, clientId string) {
-	hb := new(marketwebsocketclient.TradeWebSocketClient).Init(c.Host)
-	hb.UnSubscribe(symbol, clientId)
-}
+func futureAccountHandler(responseHandler exchange.FutureAccountHandler) futures.WsUserDataHandler {
+	return func(event *futures.WsUserDataEvent) {
 
-func AccountHandler(responseHandler exchange.TradeHandler) binance.WsHandler {
-	return func(message []byte) {
+		var Currencies []exchange.Balance
+		var Orders []exchange.Order
 
-		if &message != nil {
+		if event.Event == "ACCOUNT_UPDATE" {
+			for _, v := range event.AccountUpdate.Balances {
+				Currencies = append(Currencies, exchange.Balance{
+					Currency:  v.Asset,
+					Available: v.Balance,
+					Locked:    v.Asset})
 
-			var details []exchange.TradeDetail
-			l := len(depthResponse.Tick.Data)
-			for i := l - 1; i >= 0; i-- { // 火币的交易明细是时间倒序的，新数据在前
-				t := depthResponse.Tick.Data[i]
-				details = append(details, exchange.TradeDetail{
-					Id:        t.TradeId,
-					Price:     t.Price,
-					Amount:    t.Amount,
-					Timestamp: t.Timestamp,
-					Direction: t.Direction,
-				})
 			}
-			responseHandler(details)
+
+			if event.Event == "ORDER_TRADE_UPDATE" {
+				return
+			}
+			Currencies := make(map[string]exchange.FutureAccountCurrency)
+			Orders := make(map[string]exchange.FutureAccountOrder)
+
+			responseHandler(exchange.AccountBalance{"future", Currencies, Orders})
 
 		}
-
 	}
-}
-
-func futureAccountHandler(responseHandler exchange.TradeHandler) futures.WsHandler {
-	return func(message []byte) {
-		var p fastjson.Parser
-
-		if &message != nil {
-			v, err := p.Parse(message)
-			if err != nil {
-				//log.Fatal(err)
-			}
-
-			ask := v.GetStringBytes("a")
-
-			bid := v.GetStringBytes("b")
-			a, _ := strconv.ParseFloat(ask, 32)
-			b, _ := strconv.ParseFloat(bid, 32)
-
-			if depthResponse.Tick != nil && depthResponse.Tick.Data != nil {
-				applogger.Info("WebSocket received trade update: count=%d", len(depthResponse.Tick.Data))
-				var details []exchange.TradeDetail
-				l := len(depthResponse.Tick.Data)
-				for i := l - 1; i >= 0; i-- { // 火币的交易明细是时间倒序的，新数据在前
-					t := depthResponse.Tick.Data[i]
-					details = append(details, exchange.TradeDetail{
-						Id:        t.TradeId,
-						Price:     t.Price,
-						Amount:    t.Amount,
-						Timestamp: t.Timestamp,
-						Direction: t.Direction,
-					})
-				}
-				responseHandler(details)
-			}
-
-			if depthResponse.Data != nil {
-				applogger.Info("WebSocket received trade data: count=%d", len(depthResponse.Data))
-				//for _, t := range depthResponse.Data {
-				//	applogger.Info("Trade data, id: %d, price: %v, amount: %v", t.TradeId, t.Price, t.Amount)
-				//}
-			}
-		}
-
-	}
-}
-func errHandler(err error) {
-
-	fmt.Println(err)
-
 }
 */
