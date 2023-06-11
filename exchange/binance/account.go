@@ -1,6 +1,12 @@
 package binance
 
-/*
+import (
+	"fmt"
+
+	"github.com/adshao/go-binance/v2/futures"
+	"github.com/dqner/fym/exchange"
+)
+
 func (c *Client) SubscribeFutureAccount(symbol, clientId string, responseHandler exchange.FutureAccountHandler) {
 
 	errHandler := func(err error) {
@@ -15,8 +21,7 @@ func (c *Client) SubscribeFutureAccount(symbol, clientId string, responseHandler
 }
 
 func (c *Client) UnsubscribeAccount(symbol, clientId string) {
-	hb := new(marketwebsocketclient.TradeWebSocketClient).Init(c.Host)
-	hb.UnSubscribe(symbol, clientId)
+
 }
 
 func futureAccountHandler(responseHandler exchange.FutureAccountHandler) futures.WsUserDataHandler {
@@ -45,4 +50,3 @@ func futureAccountHandler(responseHandler exchange.FutureAccountHandler) futures
 		}
 	}
 }
-*/
